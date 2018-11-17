@@ -16,7 +16,7 @@ def get_counts():
     lines = sc.textFile("README.md")
     words = lines.flatMap(lambda x: x.split(' '))
     pairs = words.map(lambda x: (x,1))
-    count = pairs.reduceByKey(lambda x,y: x+y).toDF()
+    count = pairs.reduceByKey(lambda x,y: x+y)
 
     # output results
 #    for x in count.collect():
@@ -25,7 +25,7 @@ def get_counts():
     ## https://stackoverflow.com/questions/40069264/how-can-i-save-an-rdd-into-hdfs-and-later-read-it-back
     hdfs = "hdfs://hadoop:8020/"
     ## Writing file in CSV format
-    count.write.format("com.databricks.spark.csv").mode("overwrite").save(hdfs + "user/me/count.csv")
+    count.toDF().write.format("com.databricks.spark.csv").mode("overwrite").save(hdfs + "user/me/count.csv")
 
     # End the Spark Context
     sc.stop()
