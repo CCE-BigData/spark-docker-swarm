@@ -1,7 +1,6 @@
 try:
     from pyspark import SparkContext, SparkConf
-    from pyspark.sql import SparkSession
-#    from operator import add
+    from operator import add
 except Exception as e:
     print(e)
 
@@ -10,7 +9,6 @@ def get_counts():
     conf = SparkConf().setAppName('words count')
     conf = conf.setMaster('spark://master:7077')
     sc = SparkContext(conf=conf)
-    spark = SparkSession(sc)
 
     # core part of the script
     lines = sc.textFile("README.md")
@@ -19,15 +17,12 @@ def get_counts():
     count = pairs.reduceByKey(lambda x,y: x+y)
 
     # output results
-#    for x in count.collect():
-#        print(x)
+    lines.saveAsTextFile("hdfs://hadoop:8020/user/me/lines")
+    count.saveAsTextFile("hdfs://hadoop:8020/user/me/count-rdd")
 
-    ## https://stackoverflow.com/questions/40069264/how-can-i-save-an-rdd-into-hdfs-and-later-read-it-back
-    hdfs = "hdfs://hadoop:8020/"
-    ## Writing file in CSV format
-    count.toDF().write.format("com.databricks.spark.csv").mode("overwrite").save(hdfs + "user/me/count.csv")
+    for x in count.collect():
+        print(x)
 
-    # End the Spark Context
     sc.stop()
 
 if __name__ == "__main__":
